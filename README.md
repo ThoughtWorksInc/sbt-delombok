@@ -1,4 +1,4 @@
-# sbt-delombok
+# sbt-delombok <a href="http://thoughtworks.com/"><img align="right" src="https://www.thoughtworks.com/imgs/tw-logo.png" title="ThoughtWorks" height="15"/></a>
 
 [![Build Status](https://travis-ci.org/ThoughtWorksInc/sbt-delombok.svg)](https://travis-ci.org/ThoughtWorksInc/sbt-delombok)
 
