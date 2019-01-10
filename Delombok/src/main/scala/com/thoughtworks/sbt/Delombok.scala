@@ -18,43 +18,45 @@ object Delombok extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[_]] =
     Seq(Compile, Test).flatMap(
       inConfig(_)(
-        Seq(
-          delombokDirectory := target.value / "delombok",
-          delombok := {
-            val classPathArgument = s"--classpath=${Path.makeString(dependencyClasspath.value.map(_.data))}"
-            val targetArgument = s"--target=${delombokDirectory.value.getPath}"
-            val sourceDirectoryArguments = (doc / sourceDirectories).value.map(_.getPath)
-            val sourceFileArguments = for {
-              sourceFile <- sources.value
-              if sourceFile.ext == "java" &&
-                (doc / sourceDirectories).value.forall(sourceFile.relativeTo(_).isEmpty)
-            } yield sourceFile.getPath
+        inTask(delombok)(
+          Seq(
+            Defaults.TaskZero / delombokDirectory := target.value / "delombok",
+            Defaults.TaskZero / delombok := {
+              val classPathArgument = s"--classpath=${Path.makeString(dependencyClasspath.value.map(_.data))}"
+              val targetArgument = s"--target=${delombokDirectory.value.getPath}"
+              val sourceDirectoryArguments = sourceDirectories.value.map(_.getPath)
+              val sourceFileArguments = for {
+                sourceFile <- sources.value
+                if sourceFile.ext == "java" &&
+                  sourceDirectories.value.forall(sourceFile.relativeTo(_).isEmpty)
+              } yield sourceFile.getPath
 
-            runner.value
-              .run(
-                "lombok.launch.Main",
-                dependencyClasspath.value.map(_.data),
-                Seq("delombok", "--nocopy", "--onlyChanged", classPathArgument, targetArgument) ++
-                  sourceDirectoryArguments ++ sourceFileArguments,
-                (delombok / streams).value.log
-              )
-              .get
+              runner.value
+                .run(
+                  "lombok.launch.Main",
+                  dependencyClasspath.value.map(_.data),
+                  Seq("delombok", "--nocopy", "--onlyChanged", classPathArgument, targetArgument) ++
+                    sourceDirectoryArguments ++ sourceFileArguments,
+                  streams.value.log
+                )
+                .get
 
-            sources.value.view.collect {
-              case sourceFile if sourceFile.ext == "java" =>
-                val relativeJavaFile = (doc / sourceDirectories).value
-                  .collectFirst(Function.unlift(IO.relativize(_, sourceFile)))
-                  .getOrElse(sourceFile.getName)
-                sourceFile -> delombokDirectory.value / relativeJavaFile
-            }.toMap
-          }
+              sources.value.view.collect {
+                case sourceFile if sourceFile.ext == "java" =>
+                  val relativeJavaFile = sourceDirectories.value
+                    .collectFirst(Function.unlift(IO.relativize(_, sourceFile)))
+                    .getOrElse(sourceFile.getName)
+                  sourceFile -> delombokDirectory.value / relativeJavaFile
+              }.toMap
+            }
+          )
         )
       )
     )
 
   object autoImport {
     val delombokDirectory = settingKey[File]("Directory to save delomboked files to")
-    val delombok = taskKey[Map[File, File]]("Run delombok")
+    val delombok = taskKey[Map[File, File]]("Run delombok and return translated file pairs")
   }
 
 }
