@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ThoughtWorksInc/sbt-delombok.svg)](https://travis-ci.org/ThoughtWorksInc/sbt-delombok)
 
-**sbt-delombok** is an an sbt plug-in to delombok Java sources files that contain [Lombok](https://projectlombok.org/) annotations. With the help of this plug-in, you can generate Javadoc that contains Lombok-generated classes and methods.
+**sbt-delombok** is an sbt plug-in to delombok Java sources files that contain [Lombok](https://projectlombok.org/) annotations. With the help of this plug-in, you can generate Javadoc that contains Lombok-generated classes and methods.
 
 ## Usage
 
