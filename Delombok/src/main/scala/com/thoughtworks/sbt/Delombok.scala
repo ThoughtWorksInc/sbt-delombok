@@ -47,7 +47,7 @@ object Delombok extends AutoPlugin {
                     .collectFirst(Function.unlift(IO.relativize(_, sourceFile)))
                     .getOrElse(sourceFile.getName)
                   sourceFile -> delombokDirectory.value / relativeJavaFile
-              }.toMap
+              }.filter(_._2.exists()).toMap
             }
           )
         )
